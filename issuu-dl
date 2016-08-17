@@ -3,24 +3,24 @@
 html=$(wget --quiet --output-document=- "$1")
 
 page_count=$(echo "$html" |\
-    grep -oP 'pageCount":\s*\K\d+' |\
+    grep --only-matching --perl-regexp 'pageCount":\s*\K\d+' |\
     head -1)
 [[ $page_count > 0 ]] || { echo 'no pages' && exit 1; }
 
 content_id=$(echo "$html" |\
-    grep -oP 'documentId":\s*"\K[^"]+(?=")' |\
+    grep --only-matching --perl-regexp 'documentId":\s*"\K[^"]+(?=")' |\
     head -1)
 [[ -n $content_id ]] || { echo 'no content_id' && exit 1; }
 
 title=$(echo "$html" |\
-    grep -oP 'title":\s*"\K[^"]+(?=")' |\
+    grep --only-matching --perl-regexp 'title":\s*"\K[^"]+(?=")' |\
     head -1 |\
     perl -MHTML::Entities -CIO -e 'print decode_entities(<>)')
 [[ -z $title ]] && title=issuu
 
-tmp_dir=$(mktemp -d)
+tmp_dir=$(mktemp --directory)
 for ((i = 1; i <= page_count; i++)); do
-    wget -qO "${tmp_dir}/${i}.jpg" \
+    wget --quiet --output-document="${tmp_dir}/${i}.jpg" \
         "https://image.issuu.com/${content_id}/jpg/page_${i}.jpg" &
 done
 
@@ -33,8 +33,8 @@ echo Converting...
 tmp_file="${tmp_dir}/t.pdf"
 convert \
     $(find "$tmp_dir" -type f -printf '%f\n' |\
-    sort -n |\
-    awk -v dir="$tmp_dir" '{ printf dir "/" $1 " " }') \
+    sort --numeric-sort |\
+    awk --assign=dir="$tmp_dir" '{ printf dir "/" $1 " " }') \
     "$tmp_file"
 mv "$tmp_file" "$title".pdf
 
