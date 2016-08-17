@@ -14,7 +14,8 @@ content_id=$(echo "$html" |\
 
 title=$(echo "$html" |\
     grep -oP 'title":\s*"\K[^"]+(?=")' |\
-    head -1)
+    head -1 |\
+    perl -MHTML::Entities -CIO -e 'print decode_entities(<>)')
 [[ -z $title ]] && title=issuu
 
 tmp_dir=$(mktemp -d)
