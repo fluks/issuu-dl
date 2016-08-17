@@ -19,10 +19,20 @@ title=$(echo "$html" |\
 
 tmp_dir=$(mktemp -d)
 for ((i = 1; i <= page_count; i++)); do
-    wget -qO "${tmp_dir}/${i}.jpg" "https://image.issuu.com/${content_id}/jpg/page_${i}.jpg"
+    wget -qO "${tmp_dir}/${i}.jpg" \
+        "https://image.issuu.com/${content_id}/jpg/page_${i}.jpg" &
 done
 
-convert $(\ls -cr "$tmp_dir"/*.jpg) "$title".pdf
+echo -n 'Downloading... '
+wait
+echo done!
+
+echo Converting...
+convert \
+    $(find "$tmp_dir" -type f -printf '%f\n' |\
+    sort -n |\
+    awk -v dir="$tmp_dir" '{ printf dir "/" $1 " " }') \
+    "$title".pdf
 
 exit 0
 
