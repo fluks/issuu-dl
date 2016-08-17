@@ -29,11 +29,14 @@ wait
 echo done!
 
 echo Converting...
+# convert doesn't like long filenames(252 bytes, I think).
+tmp_file="${tmp_dir}/t.pdf"
 convert \
     $(find "$tmp_dir" -type f -printf '%f\n' |\
     sort -n |\
     awk -v dir="$tmp_dir" '{ printf dir "/" $1 " " }') \
-    "$title".pdf
+    "$tmp_file"
+mv "$tmp_file" "$title".pdf
 
 exit 0
 
