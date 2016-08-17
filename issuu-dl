@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+html=$(curl -s "$1")
+
+page_count=$(echo "$html" |\
+    grep -oP 'pageCount":\s*\K\d+' |\
+    head -1)
+[[ $page_count > 0 ]] || { echo 'no pages' && exit 1; }
+
+content_id=$(echo "$html" |\
+    grep -oP 'documentId":\s*"\K[^"]+(?=")' |\
+    head -1)
+[[ -n $content_id ]] || { echo 'no content_id' && exit 1; }
+
+title=$(echo "$html" |\
+    grep -oP 'title":\s*"\K[^"]+(?=")' |\
+    head -1)
+[[ -z $title ]] && title=issuu
+
+tmp_dir=$(mktemp -d)
+for ((i = 1; i <= page_count; i++)); do
+    wget -qO "${tmp_dir}/${i}.jpg" "https://image.issuu.com/${content_id}/jpg/page_${i}.jpg"
+done
+
+convert $(\ls -cr "$tmp_dir"/*.jpg) "$title".pdf
+
+exit 0
+
+# vim: set ft=bash
