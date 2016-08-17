@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-html=$(curl -s "$1")
+html=$(wget --quiet --output-document=- "$1")
 
 page_count=$(echo "$html" |\
     grep -oP 'pageCount":\s*\K\d+' |\
