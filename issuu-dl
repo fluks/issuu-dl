@@ -3,25 +3,25 @@
 html=$(wget --quiet --output-document=- "$1")
 
 page_count=$(echo "$html" |\
-    grep --only-matching --perl-regexp 'pageCount":\s*\K\d+' |\
-    head -1)
+    grep --only-matching --perl-regexp 'pageCount&quot;:\K\d+')
 [[ $page_count > 0 ]] || { echo 'no pages' && exit 1; }
 
-content_id=$(echo "$html" |\
-    grep --only-matching --perl-regexp 'documentId":\s*"\K[^"]+(?=")' |\
-    head -1)
-[[ -n $content_id ]] || { echo 'no content_id' && exit 1; }
+publication_id=$(echo "$html" |\
+    grep --only-matching --perl-regexp 'publicationId&quot;:&quot;\K[a-z0-9]+(?=&quot;)')
+[[ -n $publication_id ]] || { echo 'no publication_id' && exit 1; }
+
+revision_id=$(echo "$html" |\
+    grep --only-matching --perl-regexp 'revisionId&quot;:&quot;\K[0-9]+(?=&quot;)')
+[[ -n $revision_id ]] || { echo 'no revision_id' && exit 1; }
 
 title=$(echo "$html" |\
-    grep --only-matching --perl-regexp 'title":\s*"\K[^"]+(?=")' |\
-    head -1 |\
-    perl -MHTML::Entities -CIO -e 'print decode_entities(<>)')
+    grep --only-matching --perl-regexp 'title&quot;:&quot;\K.*?(?=&quot;)')
 [[ -z $title ]] && title=issuu
 
 tmp_dir=$(mktemp --directory)
 for ((i = 1; i <= page_count; i++)); do
     wget --quiet --output-document="${tmp_dir}/${i}.jpg" \
-        "https://image.issuu.com/${content_id}/jpg/page_${i}.jpg" &
+        "https://image.issuu.com/${revision_id}-${publication_id}/jpg/page_${i}.jpg" &
 done
 
 echo -n 'Downloading... '
