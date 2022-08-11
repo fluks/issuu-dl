@@ -33,4 +33,4 @@ Set disk cache usage higher, I set it to 8GiB here.
 
 ## Dependencies
 
-wget, convert.
+wget, ImageMagick (convert).
