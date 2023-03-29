@@ -34,3 +34,8 @@ Set disk cache usage higher, I set it to 8GiB here.
 ## Dependencies
 
 wget, ImageMagick (convert).
+
+## WWW
+
+If you can't or don't want to use this command line tool, there is also a
+website at https://issuudownloader.tech/.
