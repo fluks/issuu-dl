@@ -3,22 +3,29 @@
 html=$(wget --quiet --output-document=- "$1")
 
 page_count=$(echo "$html" |\
-    grep --only-matching --perl-regexp 'pageCount&quot;:\K\d+')
+    grep --only-matching -E 'pageCount&quot;:[0-9]+' | grep --only-matching -E '[0-9]+')
 [[ $page_count > 0 ]] || { echo 'no pages' && exit 1; }
 
 publication_id=$(echo "$html" |\
-    grep --only-matching --perl-regexp 'publicationId&quot;:&quot;\K[a-z0-9]+(?=&quot;)')
+    grep --only-matching -E 'publicationId&quot;:&quot;[a-z0-9]+&quot;' |\
+    grep --only-matching -E ';[a-z0-9]+' |\
+    grep --only-matching -E '[a-z0-9]+')
+
 [[ -n $publication_id ]] || { echo 'no publication_id' && exit 1; }
 
 revision_id=$(echo "$html" |\
-    grep --only-matching --perl-regexp 'revisionId&quot;:&quot;\K[0-9]+(?=&quot;)')
+    grep --only-matching -E 'revisionId&quot;:&quot;[0-9]+&quot;' |\
+    grep --only-matching -E ';[a-z0-9]+' |\
+    grep --only-matching -E '[a-z0-9]+')
 [[ -n $revision_id ]] || { echo 'no revision_id' && exit 1; }
 
 title=$(echo "$html" |\
-    grep --only-matching --perl-regexp 'title&quot;:&quot;\K.*?(?=&quot;)')
+    grep --only-matching -E 'title&quot;:&quot;[^&]+' |\
+    grep --only-matching -E ';[^:]*' |\
+    grep --only-matching -E '[^;]+')
 [[ -z $title ]] && title=issuu
 
-tmp_dir=$(mktemp --directory)
+tmp_dir=$(mktemp -d -t tmp.XXXXXXXXXX)
 for ((i = 1; i <= page_count; i++)); do
     wget --quiet --output-document="${tmp_dir}/${i}.jpg" \
         "https://image.issuu.com/${revision_id}-${publication_id}/jpg/page_${i}.jpg" &
@@ -32,7 +39,7 @@ echo Converting...
 # convert doesn't like long filenames(252 bytes, I think).
 tmp_file="${tmp_dir}/t.pdf"
 convert \
-    $(find "$tmp_dir" -type f -printf '%f\n' |\
+    $(find "$tmp_dir" -type f -exec basename '{}' \; |\
     sort --numeric-sort |\
     awk -v dir="$tmp_dir" '{ printf dir "/" $1 " " }') \
     "$tmp_file"
