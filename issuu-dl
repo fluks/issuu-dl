@@ -7,15 +7,18 @@ page_count=$(echo "$html" |\
 [[ $page_count > 0 ]] || { echo 'no pages' && exit 1; }
 
 publication_id=$(echo "$html" |\
-    grep --only-matching --perl-regexp 'publicationId&quot;:&quot;\K[a-z0-9]+(?=&quot;)')
+    grep --only-matching --perl-regexp 'publicationId&quot;:&quot;\K[a-z0-9]+&quot;' |\
+    grep --only-matching --perl-regexp '.+?(?=&quot;)' | head -n 1)
 [[ -n $publication_id ]] || { echo 'no publication_id' && exit 1; }
 
 revision_id=$(echo "$html" |\
-    grep --only-matching --perl-regexp 'revisionId&quot;:&quot;\K[0-9]+(?=&quot;)')
+    grep --only-matching --perl-regexp 'revisionId&quot;:&quot;\K[0-9]+&quot;' |\
+    grep --only-matching --perl-regexp '.+?(?=&quot;)' | head -n 1)
 [[ -n $revision_id ]] || { echo 'no revision_id' && exit 1; }
 
 title=$(echo "$html" |\
-    grep --only-matching --perl-regexp 'title&quot;:&quot;\K.*?(?=&quot;)')
+    grep --only-matching --perl-regexp 'title&quot;:&quot;\K.*?&quot;' |\
+    grep --only-matching --perl-regexp '.+?(?=&quot;)' | head -n 1)
 [[ -z $title ]] && title=issuu
 
 tmp_dir=$(mktemp --directory)
