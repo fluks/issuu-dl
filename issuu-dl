@@ -18,7 +18,8 @@ revision_id=$(echo "$html" |\
 
 title=$(echo "$html" |\
     grep --only-matching --perl-regexp 'title&quot;:&quot;\K.*?&quot;' |\
-    grep --only-matching --perl-regexp '.+?(?=&quot;)' | head -n 1)
+    grep --only-matching --perl-regexp '.+?(?=&quot;)' | head -n 1 |\
+    sed 's/\///g')
 [[ -z $title ]] && title=issuu
 
 tmp_dir=$(mktemp --directory)
