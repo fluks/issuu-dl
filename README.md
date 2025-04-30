@@ -13,7 +13,7 @@ document.
 ```
 
 The URL needs to be for the whole document, for example
-[https://issuu.com/jmadler/docs/modern_perl](https://issuu.com/jmadler/docs/modern_perl),
+[https://issuu.com/optopia/docs/optopia_final_copy](https://issuu.com/optopia/docs/optopia_final_copy),
 not anything else, like not a URL for a single page.
 
 You might need to change a couple of ImageMagick policies. The file is
