@@ -4,7 +4,7 @@ html=$(wget --quiet --output-document=- "$1")
 
 page_count=$(echo "$html" |\
     grep --only-matching --perl-regexp 'pageCount\\":\K\d+')
-[[ $page_count > 0 ]] || { echo 'no pages' && exit 1; }
+[[ $page_count -gt 0 ]] || { echo 'no pages' && exit 1; }
 
 publication_id=$(echo "$html" |\
     grep --only-matching --perl-regexp 'publicationId\\":\\"\K[a-z0-9]+' |\
