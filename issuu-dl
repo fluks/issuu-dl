@@ -19,7 +19,9 @@ revision_id=$(echo "$html" |\
 title=$(echo "$html" |\
     grep --only-matching --perl-regexp 'title\\":\\"\K[^"]+' |\
     head -1 |\
-    sed 's/.$//')
+    sed 's/.$//' |\
+    # Remove '/'.
+    sed 's/\///g')
 [[ -z $title ]] && title=issuu
 
 tmp_dir=$(mktemp --directory)
